@@ -16,8 +16,8 @@ public class Cart {
     @GenericGenerator(name="uuid",strategy = "uuid2")
     @Column(name = Cart.ID_COLUMN)
     private String cartId;
-    private String UserId;
-    private String ProductId;
+    private String userId;
+    private String productId;
     private String merchantId;
     private int quantity;
 
@@ -38,19 +38,19 @@ public class Cart {
     }
 
     public String getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(String userId) {
-        UserId = userId;
+        this.userId = userId;
     }
 
     public String getProductId() {
-        return ProductId;
+        return productId;
     }
 
     public void setProductId(String productId) {
-        ProductId = productId;
+        this.productId = productId;
     }
 
     public String getMerchantId() {
@@ -73,8 +73,8 @@ public class Cart {
     public String toString() {
         return "Cart{" +
                 "cartId='" + cartId + '\'' +
-                ", UserId='" + UserId + '\'' +
-                ", ProductId='" + ProductId + '\'' +
+                ", UserId='" + userId + '\'' +
+                ", ProductId='" + productId + '\'' +
                 ", merchantId='" + merchantId + '\'' +
                 ", quantity=" + quantity +
                 '}';

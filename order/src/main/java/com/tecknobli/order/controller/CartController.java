@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/cart")
@@ -44,12 +42,12 @@ public class CartController {
         return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user/{userId}")
-    public List<UserCartDTO> getCartByUser(@PathVariable("userId") String userId){
+    @GetMapping(value = "/user/{userId}")
+    public UserCartDTO getCartByUser(@PathVariable("userId") String userId){
         return cartService.findByUserId(userId);
     }
 
-    @RequestMapping(value="/user/delete/{userID}")
+    @DeleteMapping(value="/user/delete/{userID}")
     public ResponseEntity<Boolean> deleteUserCart(@PathVariable("userID") String userId){
         cartService.deleteByUserId(userId);
         return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);

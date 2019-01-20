@@ -12,6 +12,24 @@ public class ProductDTO {
     private float price;
     private HashMap<String,String> attributes;
     private CategoryDTO category;
+    private String merchantId;
+    private int quantity;
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(String merchantId) {
+        this.merchantId = merchantId;
+    }
 
     @Override
     public String toString() {

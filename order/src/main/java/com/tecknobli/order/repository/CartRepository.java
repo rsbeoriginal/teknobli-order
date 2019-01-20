@@ -13,6 +13,6 @@ public interface CartRepository extends CrudRepository<Cart,String> {
     List<Cart> findByUserId(String userId);
 
     @Modifying
-    @Query("delete from cart where user_id = ?1")
+    @Query(value = "delete from Cart WHERE userId = ?1")
     void deleteByUserId(String userId);
 }
