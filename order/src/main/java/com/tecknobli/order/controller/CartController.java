@@ -46,12 +46,7 @@ public class CartController {
 
     @RequestMapping(value = "/user/{userId}")
     public List<UserCartDTO> getCartByUser(@PathVariable("userId") String userId){
-        List<Cart> userCart = cartService.findByUserId(userId);
-        List<UserCartDTO> userCartDTOList = new ArrayList<>();
-        for(Cart cart : userCart){
-
-        }
-        return userCartDTOList;
+        return cartService.findByUserId(userId);
     }
 
     @RequestMapping(value="/user/delete/{userID}")

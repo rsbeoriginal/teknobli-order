@@ -1,5 +1,6 @@
 package com.tecknobli.order.service.CartServiceImpl;
 
+import com.tecknobli.order.dto.UserCartDTO;
 import com.tecknobli.order.entity.Cart;
 import com.tecknobli.order.repository.CartRepository;
 import com.tecknobli.order.service.CartService;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,8 +38,14 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<Cart> findByUserId(String userId) {
-        return cartRepository.findByUserId(userId);
+    public List<UserCartDTO> findByUserId(String userId) {
+
+        List<Cart> userCart = cartRepository.findByUserId(userId);
+        List<UserCartDTO> userCartDTOList = new ArrayList<>();
+        for(Cart cart : userCart){
+
+        }
+        return userCartDTOList;
     }
 
     @Override
