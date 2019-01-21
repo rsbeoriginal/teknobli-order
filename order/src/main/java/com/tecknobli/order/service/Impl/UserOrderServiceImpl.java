@@ -1,6 +1,7 @@
 package com.tecknobli.order.service.Impl;
 
 import com.tecknobli.order.dto.ProductDTO;
+import com.tecknobli.order.dto.UserOrderDTO;
 import com.tecknobli.order.dto.UserPurchasedItemDTO;
 import com.tecknobli.order.entity.PurchasedItem;
 import com.tecknobli.order.entity.UserOrder;
@@ -11,6 +12,7 @@ import com.tecknobli.order.repository.UserOrderRepository;
 import com.tecknobli.order.service.CartService;
 import com.tecknobli.order.service.EmailService;
 import com.tecknobli.order.service.UserOrderService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -132,6 +134,14 @@ public class UserOrderServiceImpl implements UserOrderService {
             userPurchasedItemDTOS.add(temp);
         }
         return userPurchasedItemDTOS;
+    }
+
+    @Override
+    public UserOrderDTO findByOrderId(String orderId) {
+
+        UserOrderDTO userOrderDTO = new UserOrderDTO();
+        BeanUtils.copyProperties(userOrderRepository.findByOrderId(orderId),userOrderDTO);
+        return userOrderDTO;
     }
 
     public ProductDTO getProduct(String productId){

@@ -33,5 +33,10 @@ public class UserOrderController {
         return userOrderService.findByUserId(userId);
     }
 
+    @GetMapping(value = "/selectOrderById/{orderId}")
+    public UserOrderDTO selectOrderById(@PathVariable("orderId") String orderId){
+        return userOrderService.findByOrderId(orderId);
+    }
+
 
 }

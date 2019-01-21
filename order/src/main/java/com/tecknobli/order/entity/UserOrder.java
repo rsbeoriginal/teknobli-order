@@ -13,12 +13,12 @@ import java.util.List;
 public class UserOrder {
 
     public static final String TABLE_NAME = "USERORDER";
-    private static final String ID_COLUMN = "USER_ORDER_ID";
+//    private static final String ID_COLUMN = "USER_ORDER_ID";
 
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name="uuid",strategy = "uuid2")
-    @Column(name=UserOrder.ID_COLUMN)
+//    @Column(name=UserOrder.ID_COLUMN)
     private String  userOrderId;
 
     private String userId;
@@ -39,9 +39,9 @@ public class UserOrder {
         return TABLE_NAME;
     }
 
-    public static String getIdColumn() {
-        return ID_COLUMN;
-    }
+//    public static String getIdColumn() {
+//        return ID_COLUMN;
+//    }
 
     public String getUserOrderId() {
         return userOrderId;

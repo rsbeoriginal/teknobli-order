@@ -12,4 +12,7 @@ public interface UserOrderRepository extends CrudRepository<UserOrder,String> {
 
     @Query(value = "FROM UserOrder WHERE userId = ?1 ")
     List<UserOrder> findByUserId(String userid);
+
+    @Query("FROM UserOrder WHERE userOrderId = ?1 ")
+    UserOrder findByOrderId(String orderId);
 }
