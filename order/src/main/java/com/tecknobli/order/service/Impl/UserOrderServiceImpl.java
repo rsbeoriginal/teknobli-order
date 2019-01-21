@@ -1,10 +1,9 @@
 package com.tecknobli.order.service.Impl;
 
-import com.tecknobli.order.dto.ProductDTO;
-import com.tecknobli.order.dto.UserOrderDTO;
-import com.tecknobli.order.dto.UserPurchasedItemDTO;
+import com.tecknobli.order.dto.*;
 import com.tecknobli.order.entity.PurchasedItem;
 import com.tecknobli.order.entity.UserOrder;
+import com.tecknobli.order.merchantmicroservice.dto.MerchantDTO;
 import com.tecknobli.order.merchantmicroservice.dto.MerchantOrderDTO;
 import com.tecknobli.order.productmicroservice.Endpoints;
 import com.tecknobli.order.repository.PurchasedItemRepository;
@@ -137,11 +136,30 @@ public class UserOrderServiceImpl implements UserOrderService {
     }
 
     @Override
-    public UserOrderDTO findByOrderId(String orderId) {
+    public RecieptDTO findByOrderId(String orderId) {
 
-        UserOrderDTO userOrderDTO = new UserOrderDTO();
-        BeanUtils.copyProperties(userOrderRepository.findByOrderId(orderId),userOrderDTO);
-        return userOrderDTO;
+        RecieptDTO recieptDTO = new RecieptDTO();
+        UserOrder userOrder = userOrderRepository.findOne(orderId);
+        recieptDTO.setUserOrderData(userOrder);
+        List<RecieptProductDTO> recieptProductDTOList= new ArrayList<>();
+        for(PurchasedItem purchasedItem : userOrder.getPurchasedItemList()){
+            RecieptProductDTO recieptProductDTO = new RecieptProductDTO();
+            ProductDTO productDTO = getProduct(purchasedItem.getProductId());
+            MerchantDTO merchantDTO =getMerchant(purchasedItem.getMerchantId());
+            recieptProductDTO.setProductData(productDTO);
+            recieptProductDTO.setMerchantData(merchantDTO);
+            recieptProductDTO.setPrice(Double.valueOf(purchasedItem.getPrice()));
+            recieptProductDTO.setQuantity(purchasedItem.getQuantity());
+        }
+        return recieptDTO;
+    }
+
+    private MerchantDTO getMerchant(String merchantId) {
+
+        RestTemplate restTemplate = new RestTemplate();
+        System.out.println(merchantId);
+        MerchantDTO result = restTemplate.getForObject(com.tecknobli.order.merchantmicroservice.Endpoints.BASE_URL + com.tecknobli.order.merchantmicroservice.Endpoints.SINGLE_MERCHANT_URL + merchantId, MerchantDTO.class);
+        return result;
     }
 
     public ProductDTO getProduct(String productId){

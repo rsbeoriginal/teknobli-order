@@ -2,6 +2,7 @@ package com.tecknobli.order.controller;
 
 
 import com.tecknobli.order.dto.UserOrderDTO;
+import com.tecknobli.order.dto.RecieptDTO;
 import com.tecknobli.order.dto.UserPurchasedItemDTO;
 import com.tecknobli.order.entity.UserOrder;
 import com.tecknobli.order.service.UserOrderService;
@@ -34,7 +35,7 @@ public class UserOrderController {
     }
 
     @GetMapping(value = "/selectOrderById/{orderId}")
-    public UserOrderDTO selectOrderById(@PathVariable("orderId") String orderId){
+    public RecieptDTO selectOrderById(@PathVariable("orderId") String orderId){
         return userOrderService.findByOrderId(orderId);
     }
 
