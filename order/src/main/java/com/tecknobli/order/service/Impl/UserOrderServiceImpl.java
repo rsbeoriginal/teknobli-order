@@ -1,10 +1,10 @@
 package com.tecknobli.order.service.Impl;
 
-import com.sun.javafx.UnmodifiableArrayList;
 import com.tecknobli.order.dto.ProductDTO;
 import com.tecknobli.order.dto.UserPurchasedItemDTO;
 import com.tecknobli.order.entity.PurchasedItem;
 import com.tecknobli.order.entity.UserOrder;
+import com.tecknobli.order.merchantmicroservice.dto.MerchantOrderDTO;
 import com.tecknobli.order.productmicroservice.Endpoints;
 import com.tecknobli.order.repository.PurchasedItemRepository;
 import com.tecknobli.order.repository.UserOrderRepository;
@@ -54,11 +54,29 @@ public class UserOrderServiceImpl implements UserOrderService {
         }
         cartService.deleteByUserId(userId);
         //Send Mail to user
-        sendMail(userOrderCreated);
+        sendMailToUser(userOrderCreated);
+        sendOrderToMerchant(userOrderCreated,productDTOList);
         return userOrderCreated;
     }
 
-    private void sendMail(UserOrder userOrderCreated) {
+    private void sendOrderToMerchant(UserOrder userOrderCreated, List<ProductDTO> productDTOList) {
+
+//        List<MerchantOrderDTO> merchantOrderDTOList = new ArrayList<>();
+        RestTemplate restTemplate = new RestTemplate();
+        for (ProductDTO productDTO: productDTOList){
+            MerchantOrderDTO merchantOrderDTO = new MerchantOrderDTO();
+            merchantOrderDTO.setMerchantId(productDTO.getMerchantId());
+            merchantOrderDTO.setProductId(productDTO.getProductId());
+            merchantOrderDTO.setOrderId(userOrderCreated.getUserOrderId());
+
+            String URL = com.tecknobli.order.merchantmicroservice.Endpoints.BASE_URL + com.tecknobli.order.merchantmicroservice.Endpoints.ADDORDER_URL;
+            restTemplate.postForEntity(URL,merchantOrderDTO,MerchantOrderDTO.class);
+        }
+
+
+    }
+
+    private void sendMailToUser(UserOrder userOrderCreated) {
 
         String subject = "Your Order: " +userOrderCreated.getUserOrderId();
         String body="";
