@@ -41,37 +41,69 @@ public class UserOrderServiceImpl implements UserOrderService {
     @Transactional(readOnly = false)
     public UserOrder save(UserOrder userOrder) {
 
-        UserOrder userOrderCreated = userOrderRepository.save(userOrder);
+        UserOrder userOrderCreated = null;
+
         String userId = userOrder.getUserId();
         List<ProductDTO> productDTOList = cartService.findByUserId(userId).getProducts();
-        for(ProductDTO productDTO : productDTOList){
-            PurchasedItem purchasedItem = new PurchasedItem();
-            purchasedItem.setMerchantId(productDTO.getMerchantId());
-            purchasedItem.setPrice(productDTO.getPrice());
-            purchasedItem.setProductId(productDTO.getProductId());
-            purchasedItem.setQuantity(productDTO.getQuantity());
-            purchasedItem.setUserOrderId(userOrder);
-            purchasedItemRepository.save(purchasedItem);
+
+        Boolean orderValid = false;
+
+        orderValid = validateOrder(userOrder, productDTOList);
+        if (orderValid) {
+
+            userOrderCreated = userOrderRepository.save(userOrder);
+            for (ProductDTO productDTO : productDTOList) {
+                PurchasedItem purchasedItem = new PurchasedItem();
+                purchasedItem.setMerchantId(productDTO.getMerchantId());
+                purchasedItem.setPrice(productDTO.getPrice());
+                purchasedItem.setProductId(productDTO.getProductId());
+                purchasedItem.setQuantity(productDTO.getQuantity());
+                purchasedItem.setUserOrderId(userOrder);
+                purchasedItemRepository.save(purchasedItem);
+            }
+            cartService.deleteByUserId(userId);
+            //Send Mail to user
+            sendMailToUser(userOrderCreated);
+            //now save order in merchant microservice
+            sendOrderToMerchant(userOrderCreated, productDTOList);
         }
-        cartService.deleteByUserId(userId);
-        //Send Mail to user
-        sendMailToUser(userOrderCreated);
-        sendOrderToMerchant(userOrderCreated,productDTOList);
+
+
         return userOrderCreated;
+    }
+
+    private Boolean validateOrder(UserOrder userOrder, List<ProductDTO> productDTOList) {
+        RecieptDTO recieptDTO = new RecieptDTO();
+        recieptDTO.setUserOrderData(userOrder);
+        List<RecieptProductDTO> recieptProductDTOList = new ArrayList<>();
+        for (PurchasedItem purchasedItem : userOrder.getPurchasedItemList()) {
+            RecieptProductDTO recieptProductDTO = new RecieptProductDTO();
+            ProductDTO productDTO = getProduct(purchasedItem.getProductId());
+            MerchantDTO merchantDTO = getMerchant(purchasedItem.getMerchantId());
+            recieptProductDTO.setProductData(productDTO);
+            recieptProductDTO.setMerchantData(merchantDTO);
+            recieptProductDTO.setPrice(Double.valueOf(purchasedItem.getPrice()));
+            recieptProductDTO.setQuantity(purchasedItem.getQuantity());
+        }
+        recieptDTO.setRecieptProductDTOList(recieptProductDTOList);
+        RestTemplate restTemplate = new RestTemplate();
+        String URL = com.tecknobli.order.merchantmicroservice.Endpoints.BASE_URL + com.tecknobli.order.merchantmicroservice.Endpoints.ADDORDER_URL;
+        Boolean result = restTemplate.postForObject(URL, recieptDTO, Boolean.class);
+        return result;
     }
 
     private void sendOrderToMerchant(UserOrder userOrderCreated, List<ProductDTO> productDTOList) {
 
 //        List<MerchantOrderDTO> merchantOrderDTOList = new ArrayList<>();
         RestTemplate restTemplate = new RestTemplate();
-        for (ProductDTO productDTO: productDTOList){
+        for (ProductDTO productDTO : productDTOList) {
             MerchantOrderDTO merchantOrderDTO = new MerchantOrderDTO();
             merchantOrderDTO.setMerchantId(productDTO.getMerchantId());
             merchantOrderDTO.setProductId(productDTO.getProductId());
             merchantOrderDTO.setOrderId(userOrderCreated.getUserOrderId());
 
             String URL = com.tecknobli.order.merchantmicroservice.Endpoints.BASE_URL + com.tecknobli.order.merchantmicroservice.Endpoints.ADDORDER_URL;
-            restTemplate.postForEntity(URL,merchantOrderDTO,MerchantOrderDTO.class);
+            restTemplate.postForEntity(URL, merchantOrderDTO, MerchantOrderDTO.class);
         }
 
 
@@ -79,18 +111,18 @@ public class UserOrderServiceImpl implements UserOrderService {
 
     private void sendMailToUser(UserOrder userOrderCreated) {
 
-        String subject = "Your Order: " +userOrderCreated.getUserOrderId();
-        String body="";
-        Double totalPrice =0d;
+        String subject = "Your Order: " + userOrderCreated.getUserOrderId();
+        String body = "";
+        Double totalPrice = 0d;
 
-        for (PurchasedItem purchanteItem: userOrderCreated.getPurchasedItemList()) {
+        for (PurchasedItem purchanteItem : userOrderCreated.getPurchasedItemList()) {
 
             ProductDTO productDTO = getProduct(purchanteItem.getProductId());
             body += "\nProduct Name: " + productDTO.getProductName();
-            body += "\nPrice: " +purchanteItem.getPrice();
+            body += "\nPrice: " + purchanteItem.getPrice();
             body += "\nQuantity: " + purchanteItem.getQuantity();
 
-            totalPrice += (purchanteItem.getPrice()*purchanteItem.getQuantity());
+            totalPrice += (purchanteItem.getPrice() * purchanteItem.getQuantity());
         }
 
         body += "\n\nTotal : " + totalPrice;
@@ -104,8 +136,6 @@ public class UserOrderServiceImpl implements UserOrderService {
     }
 
 
-
-
     @Override
     public UserOrder findOne(String orderID) {
         return userOrderRepository.findOne(orderID);
@@ -116,14 +146,14 @@ public class UserOrderServiceImpl implements UserOrderService {
 
         List<UserPurchasedItemDTO> userPurchasedItemDTOS = new ArrayList<>();
 
-        for(UserOrder userOrder : userOrderRepository.findByUserId(userId)){
+        for (UserOrder userOrder : userOrderRepository.findByUserId(userId)) {
 
             System.out.println(userOrder.getUserOrderId());
             UserPurchasedItemDTO temp = new UserPurchasedItemDTO();
             temp.setUserOrder(userOrder);
             List<PurchasedItem> purchasedItemList = purchasedItemRepository.findByUserOrderId(userOrder.getUserOrderId());
             List<ProductDTO> productDTOList = new ArrayList<>();
-            for(PurchasedItem purchasedItem : purchasedItemList){
+            for (PurchasedItem purchasedItem : purchasedItemList) {
                 ProductDTO productDTO = getProduct(purchasedItem.getProductId());
                 productDTO.setQuantity(purchasedItem.getQuantity());
 
@@ -141,16 +171,17 @@ public class UserOrderServiceImpl implements UserOrderService {
         RecieptDTO recieptDTO = new RecieptDTO();
         UserOrder userOrder = userOrderRepository.findOne(orderId);
         recieptDTO.setUserOrderData(userOrder);
-        List<RecieptProductDTO> recieptProductDTOList= new ArrayList<>();
-        for(PurchasedItem purchasedItem : userOrder.getPurchasedItemList()){
+        List<RecieptProductDTO> recieptProductDTOList = new ArrayList<>();
+        for (PurchasedItem purchasedItem : userOrder.getPurchasedItemList()) {
             RecieptProductDTO recieptProductDTO = new RecieptProductDTO();
             ProductDTO productDTO = getProduct(purchasedItem.getProductId());
-            MerchantDTO merchantDTO =getMerchant(purchasedItem.getMerchantId());
+            MerchantDTO merchantDTO = getMerchant(purchasedItem.getMerchantId());
             recieptProductDTO.setProductData(productDTO);
             recieptProductDTO.setMerchantData(merchantDTO);
             recieptProductDTO.setPrice(Double.valueOf(purchasedItem.getPrice()));
             recieptProductDTO.setQuantity(purchasedItem.getQuantity());
         }
+        recieptDTO.setRecieptProductDTOList(recieptProductDTOList);
         return recieptDTO;
     }
 
@@ -162,16 +193,15 @@ public class UserOrderServiceImpl implements UserOrderService {
         return result;
     }
 
-    public ProductDTO getProduct(String productId){
+    public ProductDTO getProduct(String productId) {
         RestTemplate restTemplate = new RestTemplate();
         System.out.println(productId);
         ProductDTO result = restTemplate.getForObject(Endpoints.BASE_URL + Endpoints.SINGLRPRODUCT_URL + productId, ProductDTO.class);
-        if(result != null){
+        if (result != null) {
             return result;
         }
-        return  null;
+        return null;
     }
-
 
 
 }
