@@ -22,6 +22,7 @@ public class UserOrder {
     private String  userOrderId;
 
     private String userId;
+    private String emailId;
     private String address;
     private String phoneNo;
     private Date orderTimeStamp;
@@ -90,15 +91,11 @@ public class UserOrder {
         this.orderTimeStamp = orderTimeStamp;
     }
 
-    @Override
-    public String toString() {
-        return "UserOrder{" +
-                "userOrderId='" + userOrderId + '\'' +
-                ", userId='" + userId + '\'' +
-                ", address='" + address + '\'' +
-                ", phoneNo='" + phoneNo + '\'' +
-                ", orderTimeStamp=" + orderTimeStamp +
-                ", purchasedItemList=" + purchasedItemList +
-                '}';
+    public String getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
     }
 }

@@ -10,5 +10,14 @@ public class OrderApplication {
 		SpringApplication.run(OrderApplication.class, args);
 	}
 
+//	@Override
+//	public void run(String... strings) throws Exception {
+//
+//		@Autowired
+//		EmailService emailService = new EmailServiceImpl();
+//
+//		((EmailServiceImpl) emailService).sendSimpleMessage("rishi.sharma@coviam.com","Test Subject",
+//								"This is the body of the test mail");
+//	}
 }
 

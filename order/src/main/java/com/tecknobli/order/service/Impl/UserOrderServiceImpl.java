@@ -9,6 +9,7 @@ import com.tecknobli.order.productmicroservice.Endpoints;
 import com.tecknobli.order.repository.PurchasedItemRepository;
 import com.tecknobli.order.repository.UserOrderRepository;
 import com.tecknobli.order.service.CartService;
+import com.tecknobli.order.service.EmailService;
 import com.tecknobli.order.service.UserOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ public class UserOrderServiceImpl implements UserOrderService {
     @Autowired
     CartService cartService;
 
+    @Autowired
+    EmailService emailService;
+
     @Override
     @Transactional(readOnly = false)
     public UserOrder save(UserOrder userOrder) {
@@ -49,8 +53,39 @@ public class UserOrderServiceImpl implements UserOrderService {
             purchasedItemRepository.save(purchasedItem);
         }
         cartService.deleteByUserId(userId);
+        //Send Mail to user
+        sendMail(userOrderCreated);
         return userOrderCreated;
     }
+
+    private void sendMail(UserOrder userOrderCreated) {
+
+        String subject = "Your Order: " +userOrderCreated.getUserOrderId();
+        String body="";
+        Double totalPrice =0d;
+
+        for (PurchasedItem purchanteItem: userOrderCreated.getPurchasedItemList()) {
+
+            ProductDTO productDTO = getProduct(purchanteItem.getProductId());
+            body += "\nProduct Name: " + productDTO.getProductName();
+            body += "\nPrice: " +purchanteItem.getPrice();
+            body += "\nQuantity: " + purchanteItem.getQuantity();
+
+            totalPrice += (purchanteItem.getPrice()*purchanteItem.getQuantity());
+        }
+
+        body += "\n\nTotal : " + totalPrice;
+
+
+        emailService.sendSimpleMessage(userOrderCreated.getEmailId(),
+                subject,
+                body);
+
+
+    }
+
+
+
 
     @Override
     public UserOrder findOne(String orderID) {

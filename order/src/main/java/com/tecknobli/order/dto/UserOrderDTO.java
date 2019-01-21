@@ -8,6 +8,7 @@ public class UserOrderDTO {
     private String userId;
     private String address;
     private String phoneNo;
+    private String emailId;
     private Date orderTimeStamp;
 
     @Override
@@ -19,6 +20,14 @@ public class UserOrderDTO {
                 ", phoneNo='" + phoneNo + '\'' +
                 ", orderTimeStamp=" + orderTimeStamp +
                 '}';
+    }
+
+    public String getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
     }
 
     public String getUserOrderId() {
