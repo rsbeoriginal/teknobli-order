@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -51,6 +52,7 @@ public class UserOrderServiceImpl implements UserOrderService {
         orderValid = validateOrder(userOrder, productDTOList);
         if (orderValid) {
             System.out.println("orderValid");
+            userOrder.setOrderTimeStamp(new Date());
             userOrderCreated = userOrderRepository.save(userOrder);
             List<PurchasedItem> purchasedItemList = new ArrayList<>();
             for (ProductDTO productDTO : productDTOList) {
