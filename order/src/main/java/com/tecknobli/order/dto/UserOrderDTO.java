@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class UserOrderDTO {
 
+    private String idToken;
     private String  userOrderId;
     private String userId;
     private String address;
@@ -21,6 +22,14 @@ public class UserOrderDTO {
                 ", phoneNo='" + phoneNo + '\'' +
                 ", orderTimeStamp=" + orderTimeStamp +
                 '}';
+    }
+
+    public String getIdToken() {
+        return idToken;
+    }
+
+    public void setIdToken(String idToken) {
+        this.idToken = idToken;
     }
 
     public String getEmailId() {

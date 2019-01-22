@@ -14,6 +14,15 @@ public class ProductDTO {
     private CategoryDTO category;
     private String merchantId;
     private int quantity;
+    private String cartId;
+
+    public String getCartId() {
+        return cartId;
+    }
+
+    public void setCartId(String cartId) {
+        this.cartId = cartId;
+    }
 
     public int getQuantity() {
         return quantity;

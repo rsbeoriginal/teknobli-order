@@ -50,8 +50,9 @@ public class UserOrderServiceImpl implements UserOrderService {
 
         orderValid = validateOrder(userOrder, productDTOList);
         if (orderValid) {
-
+            System.out.println("orderValid");
             userOrderCreated = userOrderRepository.save(userOrder);
+            List<PurchasedItem> purchasedItemList = new ArrayList<>();
             for (ProductDTO productDTO : productDTOList) {
                 PurchasedItem purchasedItem = new PurchasedItem();
                 purchasedItem.setMerchantId(productDTO.getMerchantId());
@@ -59,8 +60,10 @@ public class UserOrderServiceImpl implements UserOrderService {
                 purchasedItem.setProductId(productDTO.getProductId());
                 purchasedItem.setQuantity(productDTO.getQuantity());
                 purchasedItem.setUserOrderId(userOrder);
+                purchasedItemList.add(purchasedItem);
                 purchasedItemRepository.save(purchasedItem);
             }
+            userOrderCreated.setPurchasedItemList(purchasedItemList);
             cartService.deleteByUserId(userId);
             //Send Mail to user
             sendMailToUser(userOrderCreated);
@@ -76,7 +79,9 @@ public class UserOrderServiceImpl implements UserOrderService {
         RecieptDTO recieptDTO = new RecieptDTO();
         recieptDTO.setUserOrderData(userOrder);
         List<RecieptProductDTO> recieptProductDTOList = new ArrayList<>();
-        for (PurchasedItem purchasedItem : userOrder.getPurchasedItemList()) {
+        System.out.println("size: " + productDTOList.size());
+        for (ProductDTO purchasedItem : productDTOList) {
+            System.out.println("product"+ purchasedItem.getProductName());
             RecieptProductDTO recieptProductDTO = new RecieptProductDTO();
             ProductDTO productDTO = getProduct(purchasedItem.getProductId());
             MerchantDTO merchantDTO = getMerchant(purchasedItem.getMerchantId());
@@ -84,10 +89,12 @@ public class UserOrderServiceImpl implements UserOrderService {
             recieptProductDTO.setMerchantData(merchantDTO);
             recieptProductDTO.setPrice(Double.valueOf(purchasedItem.getPrice()));
             recieptProductDTO.setQuantity(purchasedItem.getQuantity());
+            recieptProductDTOList.add(recieptProductDTO);
         }
         recieptDTO.setRecieptProductDTOList(recieptProductDTOList);
         RestTemplate restTemplate = new RestTemplate();
-        String URL = com.tecknobli.order.merchantmicroservice.Endpoints.BASE_URL + com.tecknobli.order.merchantmicroservice.Endpoints.ADDORDER_URL;
+        String URL = com.tecknobli.order.merchantmicroservice.Endpoints.BASE_URL + com.tecknobli.order.merchantmicroservice.Endpoints.VALIDATE_URL;
+        System.out.println("url: "+URL);
         Boolean result = restTemplate.postForObject(URL, recieptDTO, Boolean.class);
         return result;
     }
@@ -180,6 +187,7 @@ public class UserOrderServiceImpl implements UserOrderService {
             recieptProductDTO.setMerchantData(merchantDTO);
             recieptProductDTO.setPrice(Double.valueOf(purchasedItem.getPrice()));
             recieptProductDTO.setQuantity(purchasedItem.getQuantity());
+            recieptProductDTOList.add(recieptProductDTO);
         }
         recieptDTO.setRecieptProductDTOList(recieptProductDTOList);
         return recieptDTO;

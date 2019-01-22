@@ -7,4 +7,6 @@ public class Endpoints {
     public static final String ADDORDER_URL = "/order/add";
 
     public static final String SINGLE_MERCHANT_URL = "/select/";
+
+    public static final String VALIDATE_URL = "/order/validateOrder";
 }
