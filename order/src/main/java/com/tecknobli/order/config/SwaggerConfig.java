@@ -1,5 +1,8 @@
 package com.tecknobli.order.config;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,6 +12,9 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Properties;
 
 import static springfox.documentation.builders.PathSelectors.regex;
@@ -54,5 +60,21 @@ public class SwaggerConfig {
 
         return mailSender;
     }
+
+    @Bean
+    public FirebaseApp setupFirebase() throws IOException {
+        FileInputStream serviceAccount =
+                new FileInputStream("src/main/resources/serviceAccountKey.json");
+
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setDatabaseUrl("https://test-1d656.firebaseio.com")
+                .build();
+
+        FirebaseApp.initializeApp(options);
+        System.out.println("Firebase: " + FirebaseApp.getInstance().getName());
+        return FirebaseApp.getInstance();
+    }
+
 
 }

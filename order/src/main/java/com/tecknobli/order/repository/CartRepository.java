@@ -15,4 +15,7 @@ public interface CartRepository extends CrudRepository<Cart,String> {
     @Modifying
     @Query(value = "delete from Cart WHERE userId = ?1")
     void deleteByUserId(String userId);
+
+    @Query(value = "FROM Cart WHERE (userId = ?1 AND productId = ?2 AND merchantId =?3)")
+    Cart findByUserIdAndProductIdAndMerchantId(String userId, String productId, String merchantId);
 }

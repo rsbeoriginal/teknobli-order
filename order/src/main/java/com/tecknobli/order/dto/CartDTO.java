@@ -2,11 +2,20 @@ package com.tecknobli.order.dto;
 
 public class CartDTO {
 
+    private String idToken;
     private String cartId;
     private String userId;
     private String productId;
     private String merchantId;
     private int quantity;
+
+    public String getIdToken() {
+        return idToken;
+    }
+
+    public void setIdToken(String idToken) {
+        this.idToken = idToken;
+    }
 
     public String getCartId() {
         return cartId;

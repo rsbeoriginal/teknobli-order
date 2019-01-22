@@ -25,7 +25,11 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional(readOnly = false)
     public Cart save(Cart cart) {
-        return cartRepository.save(cart);
+        Cart cartValidate = cartRepository.findByUserIdAndProductIdAndMerchantId(cart.getUserId(),cart.getProductId(),cart.getMerchantId());
+        if(cartValidate==null){
+            return cartRepository.save(cart);
+        }
+        return null;
     }
 
     @Override
