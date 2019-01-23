@@ -11,7 +11,8 @@ public class RecieptProductDTO {
     private int quantity;
     private String merchantId;
     private String merchantName;
-    private Double rating;
+    private Double productRating;
+    private Double merchantRating;
 
     public void setProductData(ProductDTO productDTO) {
         this.productId = productDTO.getProductId();
@@ -26,12 +27,20 @@ public class RecieptProductDTO {
         this.merchantName = merchantDTO.getMerchantName();
     }
 
-    public Double getRating() {
-        return rating;
+    public Double getProductRating() {
+        return productRating;
     }
 
-    public void setRating(Double rating) {
-        this.rating = rating;
+    public void setProductRating(Double productRating) {
+        this.productRating = productRating;
+    }
+
+    public Double getMerchantRating() {
+        return merchantRating;
+    }
+
+    public void setMerchantRating(Double merchantRating) {
+        this.merchantRating = merchantRating;
     }
 
     public String getProductId() {

@@ -23,25 +23,29 @@ public class CartController {
     @Autowired
     CartService cartService;
 
-    @RequestMapping(value = "/add",method = RequestMethod.POST)
-    public ResponseEntity<CartDTO> add(@RequestBody CartDTO cartDTO){
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public ResponseEntity<CartDTO> add(@RequestBody CartDTO cartDTO) {
 
         String uid = decodeToken(cartDTO.getIdToken());
         System.out.println("idToken: " + cartDTO.getIdToken());
         System.out.println("TID: " + uid);
-        System.out.println("UID : " +cartDTO.getUserId());
-        if(cartDTO.getUserId().equals(uid)) {
+        System.out.println("UID : " + cartDTO.getUserId());
+        CartDTO cartDTOCreated = new CartDTO();
+        if (cartDTO.getUserId().equals(uid)) {
             System.out.println("Cart add");
             Cart cart = new Cart();
             BeanUtils.copyProperties(cartDTO, cart);
             Cart cartCreated = cartService.save(cart);
-            CartDTO cartDTOCreated = new CartDTO();
-            if (cartCreated !=null) {
+            if (cartCreated != null) {
                 BeanUtils.copyProperties(cartCreated, cartDTOCreated);
                 return new ResponseEntity<>(cartDTOCreated, HttpStatus.CREATED);
+            }else {
+                cartDTOCreated.setIdToken("Already added in cart");
             }
+        }else {
+            cartDTOCreated.setIdToken("Authentication failed");
         }
-        return null;
+        return new ResponseEntity<>(cartDTOCreated, HttpStatus.OK);
     }
 
     private String decodeToken(String idToken) {
@@ -54,29 +58,30 @@ public class CartController {
         return null;
     }
 
-    @RequestMapping(value = "/update",method = RequestMethod.PUT)
-    public ResponseEntity<Cart> updateCart(@RequestBody CartDTO cartDTO){
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    public ResponseEntity<Cart> updateCart(@RequestBody CartDTO cartDTO) {
         Cart cart = new Cart();
+        System.out.println("cartUpdate(): " + cartDTO);
         BeanUtils.copyProperties(cartDTO, cart);
         Cart cartCreated = cartService.update(cart);
-        return new ResponseEntity<>(cartCreated,HttpStatus.CREATED);
+        return new ResponseEntity<>(cartCreated, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/delete/{cartId}",method = RequestMethod.DELETE)
-    public ResponseEntity<Boolean> deleteEmplpyee(@PathVariable("cartId") String cartId){
+    @RequestMapping(value = "/delete/{cartId}", method = RequestMethod.DELETE)
+    public ResponseEntity<Boolean> deleteEmplpyee(@PathVariable("cartId") String cartId) {
         cartService.delete(cartId);
-        return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
+        return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
     }
 
     @GetMapping(value = "/user/{userId}")
-    public UserCartDTO getCartByUser(@PathVariable("userId") String userId){
+    public UserCartDTO getCartByUser(@PathVariable("userId") String userId) {
         return cartService.findByUserId(userId);
     }
 
-    @DeleteMapping(value="/user/delete/{userID}")
-    public ResponseEntity<Boolean> deleteUserCart(@PathVariable("userID") String userId){
+    @DeleteMapping(value = "/user/delete/{userID}")
+    public ResponseEntity<Boolean> deleteUserCart(@PathVariable("userID") String userId) {
         cartService.deleteByUserId(userId);
-        return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
+        return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
     }
 
 

@@ -26,19 +26,23 @@ public class UserOrderController {
     UserOrderService userOrderService;
 
     @RequestMapping(value = "/add",method = RequestMethod.POST)
-    public ResponseEntity<UserOrder> addOrder(@RequestBody UserOrderDTO userOrderDTO){
+    public ResponseEntity<UserOrderDTO> addOrder(@RequestBody UserOrderDTO userOrderDTO){
         System.out.println("OrderAdd:");
         String uid = decodeToken(userOrderDTO.getIdToken());
         System.out.println("idToken: " + userOrderDTO.getIdToken());
         System.out.println("TID: " + uid);
         System.out.println("UID : " +userOrderDTO.getUserId());
+        UserOrderDTO userOrderDTOResult = new UserOrderDTO();
         if(decodeToken(userOrderDTO.getIdToken()).equals(userOrderDTO.getUserId())) {
             UserOrder userOrder = new UserOrder();
             BeanUtils.copyProperties(userOrderDTO, userOrder);
-            UserOrder orderCreated = userOrderService.save(userOrder);
-            return new ResponseEntity<>(orderCreated, HttpStatus.CREATED);
+            userOrderDTOResult = userOrderService.save(userOrder);
+            return new ResponseEntity<>(userOrderDTOResult, HttpStatus.CREATED);
+        }else {
+            userOrderDTOResult.setIdToken("Authentication failed");
         }
-        return null;
+
+        return new ResponseEntity<>(userOrderDTOResult,HttpStatus.OK);
     }
 
     @RequestMapping(value="/select/{userId}",method = RequestMethod.GET)

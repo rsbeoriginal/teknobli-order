@@ -9,6 +9,7 @@ import com.tecknobli.order.productmicroservice.Endpoints;
 import com.tecknobli.order.repository.PurchasedItemRepository;
 import com.tecknobli.order.repository.UserOrderRepository;
 import com.tecknobli.order.reviewmicroservices.EndPoints;
+import com.tecknobli.order.reviewmicroservices.dto.MerchantRatingDTO;
 import com.tecknobli.order.reviewmicroservices.dto.ProductRatingDTO;
 import com.tecknobli.order.service.CartService;
 import com.tecknobli.order.service.EmailService;
@@ -43,10 +44,10 @@ public class UserOrderServiceImpl implements UserOrderService {
 
     @Override
     @Transactional(readOnly = false)
-    public UserOrder save(UserOrder userOrder) {
+    public UserOrderDTO save(UserOrder userOrder) {
 
         UserOrder userOrderCreated = null;
-
+        UserOrderDTO userOrderDTOResult= new UserOrderDTO();
         String userId = userOrder.getUserId();
         List<ProductDTO> productDTOList = cartService.findByUserId(userId).getProducts();
 
@@ -74,10 +75,14 @@ public class UserOrderServiceImpl implements UserOrderService {
             sendMailToUser(userOrderCreated);
             //now save order in merchant microservice
             sendOrderToMerchant(userOrderCreated, productDTOList);
+            BeanUtils.copyProperties(userOrderCreated,userOrderDTOResult);
+            userOrderDTOResult.setIdToken("Order created");
+        }else{
+            userOrderDTOResult.setIdToken("Some products are out of stock");
         }
 
 
-        return userOrderCreated;
+        return userOrderDTOResult;
     }
 
     private Boolean validateOrder(UserOrder userOrder, List<ProductDTO> productDTOList) {
@@ -357,7 +362,7 @@ public class UserOrderServiceImpl implements UserOrderService {
                 "          .Header-icon {\n" +
                 "            width: 96px !important;\n" +
                 "            height: 156px !important;\n" +
-                "            background-image: url('https://stripe-images.s3.amazonaws.com/emails/acct_20fyhGDC0ObZ9nUhH3S1/13/twelve_degree_icon@2x.png') !important;\n" +
+                "            background-image: url('https://firebasestorage.googleapis.com/v0/b/test-1d656.appspot.com/o/0cf99030-dfe5-4fb3-9f16-8f49f40ab591.png?alt=media&token=ed63d386-95b5-4933-8e04-ff8fc14e7828') !important;\n" +
                 "            background-position: bottom center !important;\n" +
                 "          }\n" +
                 "          /** Table **/\n" +
@@ -611,7 +616,8 @@ public class UserOrderServiceImpl implements UserOrderService {
             MerchantDTO merchantDTO = getMerchant(purchasedItem.getMerchantId());
             recieptProductDTO.setProductData(productDTO);
             recieptProductDTO.setMerchantData(merchantDTO);
-            recieptProductDTO.setRating(getRating(purchasedItem.getUserOrderId().getUserOrderId(),purchasedItem.getProductId(), userOrder.getUserId()));
+            recieptProductDTO.setProductRating(getProductRating(purchasedItem.getUserOrderId().getUserOrderId(),purchasedItem.getProductId(), userOrder.getUserId()));
+            recieptProductDTO.setMerchantRating(getMerchantRating(purchasedItem.getUserOrderId().getUserOrderId(),purchasedItem.getMerchantId(), userOrder.getUserId()));
             recieptProductDTO.setPrice(Double.valueOf(purchasedItem.getPrice()));
             recieptProductDTO.setQuantity(purchasedItem.getQuantity());
             recieptProductDTOList.add(recieptProductDTO);
@@ -620,7 +626,18 @@ public class UserOrderServiceImpl implements UserOrderService {
         return recieptDTO;
     }
 
-    private Double getRating(String orderId, String productId, String userId) {
+    private Double getMerchantRating(String orderId, String merchantId, String userId) {
+        RestTemplate restTemplate = new RestTemplate();
+        System.out.println(merchantId);
+        MerchantRatingDTO merchantRatingDTO = new MerchantRatingDTO();
+        merchantRatingDTO.setOrderId(orderId);
+        merchantRatingDTO.setMerchantId(merchantId);
+        merchantRatingDTO.setUserId(userId);
+        String URL = EndPoints.BASE_URL + EndPoints.GET_USER_MERCHANT_RATING;
+        return restTemplate.postForObject(URL,merchantRatingDTO, Double.class);
+    }
+
+    private Double getProductRating(String orderId, String productId, String userId) {
         RestTemplate restTemplate = new RestTemplate();
         System.out.println(productId);
         ProductRatingDTO productRatingDTO = new ProductRatingDTO();
