@@ -42,7 +42,8 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional(readOnly = false)
     public Cart update(Cart cart) {
-        return cartRepository.save(cart);
+        cartRepository.updateCartQuantity(cart.getCartId(),cart.getQuantity());
+        return cartRepository.findOne(cart.getCartId());
     }
 
     @Override

@@ -55,10 +55,10 @@ public class CartController {
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.PUT)
-    public ResponseEntity<Cart> updateEmployee(@RequestBody CartDTO cartDTO){
+    public ResponseEntity<Cart> updateCart(@RequestBody CartDTO cartDTO){
         Cart cart = new Cart();
         BeanUtils.copyProperties(cartDTO, cart);
-        Cart cartCreated = cartService.save(cart);
+        Cart cartCreated = cartService.update(cart);
         return new ResponseEntity<>(cartCreated,HttpStatus.CREATED);
     }
 
@@ -78,5 +78,6 @@ public class CartController {
         cartService.deleteByUserId(userId);
         return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
     }
+
 
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CartRepository extends CrudRepository<Cart,String> {
+public interface CartRepository extends CrudRepository<Cart, String> {
     List<Cart> findByUserId(String userId);
 
     @Modifying
@@ -18,4 +18,8 @@ public interface CartRepository extends CrudRepository<Cart,String> {
 
     @Query(value = "FROM Cart WHERE (userId = ?1 AND productId = ?2 AND merchantId =?3)")
     Cart findByUserIdAndProductIdAndMerchantId(String userId, String productId, String merchantId);
+
+    @Modifying
+    @Query(value = "UPDATE Cart SET quantity = ?2 WHERE cartId = ?1")
+    void updateCartQuantity(String cartId, int quantity);
 }
